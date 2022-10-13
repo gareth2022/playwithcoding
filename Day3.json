@@ -1,0 +1,193 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "vpc 2 pub subnet 2 priv subnet igw  ",
+    "Metadata": {
+
+    },
+    "Parameters": {
+      "garethVPCCidr": {
+          "Description": "parametering vpc garethVPC",
+          "Type": "String",
+          "Default": "25.0.0.0/16"},
+          "pubsub1cidr": {
+              "Description": "the pub sub net for the garethVPC",
+              "Type": "String",
+              "Default": "25.0.0.0/24"
+
+          },
+      "AZ1": {
+          "Description": "the availability-zone for my pub Subnet",
+          "Type": "String",
+          "Default": "AWS::EC2::AvailabilityZone::AZ1"
+      },
+      "pubsub2cidr": {
+          "Description": "the pub sub2 net for the garethVPC",
+          "Type": "String",
+          "Default": "25.0.1.0/24"
+  },
+      "AZ2": {
+          "Description": "the availability-zone for my pub Subnet2",
+          "Type": "String",
+          "Default": "AWS::EC2::AvailabilityZone::AZ2"
+      },
+      "privsub1cidr": {
+          "Description": "the priv subnet for the garethVPC",
+          "Type": "String",
+          "Default": "25.0.2.0/24",
+
+          },
+          "AZ3": {
+              "Description": "the availability-zone for my priv Subnet1",
+              "Type": "String",
+              "Default": "AWS::EC2::AvailabilityZone::AZ3"
+          },
+          "privsub2cidr": {
+              "Description": "the priv subnet for the garethVPC",
+              "Type": "String",
+              "Default": "25.0.3.0/24",
+
+              },
+              "AZ4": {
+                  "Description": "the availability-zone for my priv Subnet2",
+                  "Type": "String",
+                  "Default": "AWS::EC2::AvailabilityZone::AZ4"
+              },
+
+            },
+
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+      "garethVPC": {
+        "Type": "AWS::EC2::VPC",
+        "Properties": {
+          "CidrBlock": { "Ref": "garethVPCCidr" },
+          "Tags": [{ "Key": "Name", "Value":  "garethVPC" }]
+      },
+      "IgwVpc": {
+        "Type": "AWS::EC2::InternetGateway",
+        "Properties": {
+          "Tags": [{ "Key": "Name", "Value":  "IgwVpc" }]
+        },
+        "AttachGateway": {
+          "Type": "AWS::EC2::VPCGatewayAttachment",
+          "Properties": {
+            "VpcId":{ "Ref": "garethVPC" },
+            "InternetGatewayId": { "Ref": "IgwVpc" }
+          },
+        "pubsub1": {
+          "Type": "AWS::EC2::Subnet",
+          "Properties": {
+            "AvailabilityZone":{ "Ref": "AZ1" },
+            "VpcId": { "Ref": "garethVPC" },
+            "CidrBlock":{ "Ref": "pubsub1cidr" },
+            "Tags":  [{ "Key": "-", "Value":  "pubsub1" }]
+          }
+        },
+        "pubsub2": {
+          "Type": "AWS::EC2::Subnet",
+          "Properties": {
+            "AvailabilityZone":{ "Ref": "AZ2" },
+            "VpcId": { "Ref": "garethVPC" },
+            "CidrBlock":{ "Ref": "pubsub2cidr" },
+            "Tags":  [{ "Key": "-", "Value":  "pubsub2" }]
+          }
+        },
+        "privsub1": {
+          "Type": "AWS::EC2::Subnet",
+          "Properties": {
+            "AvailabilityZone":{ "Ref": "AZ3" },
+            "VpcId": { "Ref": "garethVPC" },
+            "CidrBlock":{ "Ref": "privsub1cidr" },
+            "Tags":  [{ "Key": "-", "Value":  "" }]
+          }
+        },
+        "privsub2": {
+          "Type": "AWS::EC2::Subnet",
+          "Properties": {
+            "AvailabilityZone":{ "Ref": "AZ4" },
+            "VpcId": { "Ref": "garethVPC" },
+            "CidrBlock":{ "Ref": "privsub2cidr" },
+            "Tags":  [{ "Key": "-", "Value":  "p" }],
+          }
+        },
+        "RTpub1": {
+          "Type": "AWS::EC2::RouteTable",
+          "Properties": {
+            "VpcId": { "Ref": "garethVPC" },
+            "Tags": [{ "Key": "Name", "Value":  "RTpub1" }]
+          }
+        },
+        "routepub1": {
+          "Type": "AWS::EC2::Route",
+          "Properties": {
+            "RouteTableId":{ "Ref": "RTpub1" },
+            "DestinationCidrBlock": "0.0.0.0/0",
+            "GatewayId":{ "Ref": "IgwVpc" }
+          }
+        },
+        "RTpriv1": {
+          "Type": "AWS::EC2::RouteTable",
+          "Properties": {
+            "VpcId": { "Ref": "garethVPC" },
+            "Tags": [{ "Key": "Name", "Value":  "RTpriv1" }]
+          }
+        },
+        "routeTableAssocpub1": {
+          "Type": "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties": {
+            "SubnetId": { "Ref": "pubsub1" },
+            "RouteTableId": { "Ref": "RTpub1" }
+          }
+        },
+        "RTpub2": {
+          "Type": "AWS::EC2::RouteTable",
+          "Properties": {
+            "VpcId": { "Ref": "garethVPC" },
+            "Tags": [{ "Key": "Name", "Value":  "RTpub2" }]
+          }
+        },
+        "routeTableAssocpub2": {
+          "Type": "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties": {
+            "SubnetId": { "Ref": "pubsub2" },
+            "RouteTableId": { "Ref": "RTpub2" }
+          }
+        },
+        "RTpriv2": {
+          "Type": "AWS::EC2::RouteTable",
+          "Properties": {
+            "VpcId": { "Ref": "garethVPC" },
+            "Tags": [{ "Key": "Name", "Value":  "RTpriv2" }]
+          }
+        },
+        "routeTableAssocpriv2": {
+          "Type": "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties": {
+            "SubnetId":{ "Ref": "privsub2" },
+            "RouteTableId": { "Ref": "RTpriv2" }
+          }
+        },
+        "routeTableAssocpriv1": {
+          "Type": "AWS::EC2::SubnetRouteTableAssociation",
+          "Properties": {
+            "SubnetId":{ "Ref": "privsub1" },
+            "RouteTableId": { "Ref": "RTpriv1" }
+          }
+        },
+
+
+          },
+
+
+
+
+
+    "Outputs": {
+
+    }
+}

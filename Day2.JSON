@@ -1,0 +1,35 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "vpc",
+    "Metadata": {
+
+    },
+    "Parameters": {
+      "TestvpcCidr": {
+          "Description": "parameterising my Testvpc",
+          "Type": "String",
+          "Default": "15.0.0.0/16"
+      }
+
+    },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+      "Testvpc": {
+        "Type": "AWS::EC2::VPC",
+        "Properties": {
+          "CidrBlock": { "Ref": "TestvpcCidr" },
+          "Tags": [{ "Key": "Name", "Value":  "Testvpc" }]
+        }
+      }
+
+
+    },
+    "Outputs": {
+
+    }
+}

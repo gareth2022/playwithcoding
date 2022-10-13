@@ -1,0 +1,166 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "VPC,IGW,2 PUBSUBNET,2PRIVSUBNET,ROUTE,ROUTING TABLE,ASSO ROUTE",
+    "Metadata": {
+
+    },
+    "Parameters": {
+      "GarethVPCID": {
+          "Description": "parameterising VPC",
+          "Type": "String",
+          "Default": "50.0.0.0/16"},
+          "pubsub1cidr": {
+              "Description": "parameterising public subnet 1",
+              "Type": "String",
+              "Default": "50.0.1.0/24"},
+              "pubsub2cidr": {
+                  "Description": "parameterising public subnet 2",
+                  "Type": "String",
+                  "Default": "50.0.2.0/24"},
+                  "privsub1cidr": {
+                      "Description": "parameterising private subnet 1",
+                      "Type": "String",
+                      "Default": "50.0.3.0/24"},
+                      "privsub2cidr": {
+                          "Description": "parameterising public subnet 2",
+                          "Type": "String",
+                          "Default": "50.0.4.0/24"},
+                          "AV1ID": {
+                              "Description": "parameterising avalability zone pubsub",
+                              "Type": "String",
+                              "Default": "AWS::EC2::AvailabilityZone::AVID"
+                          },
+                          "AV2ID": {
+                              "Description": "parameterising avalability zone pubsub 2",
+                              "Type": "String",
+                              "Default": "AWS::EC2::AvailabilityZone::AV2ID"
+                          },
+                          "AV3ID": {
+                              "Description": "parameterising avalability zone privsub1",
+                              "Type": "String",
+                              "Default": "AWS::EC2::AvailabilityZone::AV3ID"
+                          },
+                          "AV4ID": {
+                              "Description": "parameterising avalability zone pubsub",
+                              "Type": "String",
+                              "Default": "AWS::EC2::AvailabilityZone::AV4ID"
+                          }
+
+
+
+    },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {
+      "GarethVPC": {
+        "Type": "AWS::EC2::VPC",
+        "Properties": {
+          "CidrBlock":{ "Ref": "GarethVPCID" },
+          "Tags":{ "Key": "Name", "Value":  "GarethVPC" },
+        }
+      },
+      "IGW": {
+        "Type": "AWS::EC2::InternetGateway",
+        "Properties": {
+          "Tags":[{ "Key": "Name", "Value":  "IGW" }]
+
+      },
+      "AttachGateway": {
+        "Type": "AWS::EC2::VPCGatewayAttachment",
+        "Properties": {
+          "VpcId": { "Ref": "GarethVPC" },
+          "InternetGatewayId": { "Ref": "IGW" }
+        }
+      },
+    "pubsub1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": { "Ref": "AV1ID" },
+        "VpcId":{ "Ref": "GarethVPC" },
+        "CidrBlock":{ "Ref": "pubsub1cidr" },
+        "Tags": [{ "Key": "Name", "Value":  "pubsub1" }]
+      }
+    },
+    "pubsub2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": { "Ref": "AV2ID" },
+        "VpcId":{ "Ref": "GarethVPC" },
+        "CidrBlock":{ "Ref": "pubsub2cidr" },
+        "Tags": [{ "Key": "Name", "Value":  "pubsub2" }]
+      }
+    },
+    "privsub1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": { "Ref": "AV3ID" },
+        "VpcId":{ "Ref": "GarethVPC" },
+        "CidrBlock":{ "Ref": "privsub1cidr" },
+        "Tags": [{ "Key": "Name", "Value":  "privsub1" }]
+      }
+    },
+    "privsub2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "AvailabilityZone": { "Ref": "AV4ID" },
+        "VpcId":{ "Ref": "GarethVPC" },
+        "CidrBlock":{ "Ref": "privsub2cidr" },
+        "Tags": [{ "Key": "Name", "Value":  "privsub2" }]
+      }
+    },
+    "routingtablegareth": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "GarethVPC" },
+        "Tags": [{ "Key": "Name", "Value":  "routingtablegareth" }]
+      }
+    },
+    "routegareth1": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId":{ "Ref": "routingtablegareth" },
+        "DestinationCidrBlock":   "0.0.0.0/0",
+        "GatewayId": { "Ref": "IGW" }
+      }
+    },
+    "routegareth2": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId":{ "Ref": "routingtablegareth" },
+        "DestinationCidrBlock":   "0.0.0.0/0",
+        "GatewayId": { "Ref": "IGW" }
+      }
+    },
+    "routeTableAssocgareth1": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId":{ "Ref": "pubsub1" },
+        "RouteTableId":{ "Ref": "routingtablegareth" }
+      }
+    },
+    "routeTableAssocgareth2": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId":{ "Ref": "pubsub2" },
+        "RouteTableId":{ "Ref": "routingtablegareth" }
+      }
+    },
+    "NATGatewaypubsub1" : {
+"Type" : "AWS::EC2::NatGateway",
+"Properties" : {
+    "AllocationId" : ,
+    "ConnectivityType" : "public",
+    "SubnetId" : { "Ref": "pubsub1" },
+    "Tags" : [ { "Key": "Name", "Value":  "NATGatewaypubsub1" } ]
+
+
+  },
+
+    "Outputs": {
+
+    }
+}
